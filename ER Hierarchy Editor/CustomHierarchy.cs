@@ -199,6 +199,10 @@ public static class CustomHierarchy
                 {
                     icon = EditorGUIUtility.ObjectContent(null, typeof(Camera)).image as Texture2D;
                 }
+                else if (gameObject.GetComponent<ParticleSystem>() != null)
+                {
+                    icon = EditorGUIUtility.ObjectContent(null, typeof(ParticleSystem)).image as Texture2D;
+                }
                 else if (gameObject.GetComponents<Component>().Length == 1)
                 {
                     icon = null;
