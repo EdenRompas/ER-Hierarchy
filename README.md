@@ -19,7 +19,15 @@
 ###
 
 <div align="center">
-  <img height="400" src="Assets/Images/documentation.png"/>
+  <img height="400" src="Assets/Images/documentation-1.png"/>
+</div>
+
+<div align="center">
+  <img height="400" src="Assets/Images/documentation-2.png"/>
+</div>
+
+<div align="center">
+  <img height="400" src="Assets/Images/documentation-3.png"/>
 </div>
 
 ###
