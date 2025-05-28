@@ -18,7 +18,7 @@
 
 ###
 
-<div align="center">
+<div align="left">
   <img height="200" src="Assets/Images/documentation-1.png"/>
 </div>
 
@@ -27,7 +27,7 @@
 </div>
 
 <div align="left">
-  <img height="400" src="Assets/Images/documentation-3.png"/>
+  <img height="200" src="Assets/Images/documentation-3.png"/>
 </div>
 
 ###
