@@ -19,11 +19,11 @@
 ###
 
 <div align="center">
-  <img height="400" src="Assets/Images/documentation-1.png"/>
+  <img height="200" src="Assets/Images/documentation-1.png"/>
 </div>
 
 <div align="center">
-  <img height="400" src="Assets/Images/documentation-2.png"/>
+  <img height="100" src="Assets/Images/documentation-2.png"/>
 </div>
 
 <div align="center">
