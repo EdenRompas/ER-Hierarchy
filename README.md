@@ -22,11 +22,11 @@
   <img height="200" src="Assets/Images/documentation-1.png"/>
 </div>
 
-<div align="center">
+<div align="left">
   <img height="100" src="Assets/Images/documentation-2.png"/>
 </div>
 
-<div align="center">
+<div align="left">
   <img height="400" src="Assets/Images/documentation-3.png"/>
 </div>
 
