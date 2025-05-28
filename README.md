@@ -5,6 +5,7 @@
 <p align="left">The Hierarchy Editor is a custom tool designed to enhance the visual organization and management of GameObjects within Unity’s Hierarchy window. This tool provides a more intuitive and visually appealing interface that simplifies how developers interact with and structure objects in a scene. By adding visual cues such as gradient highlights, connector lines, and component icons, the Hierarchy Editor helps streamline the development workflow and improve clarity when working on complex scenes.</p>
 
 <p align="left">Don’t forget to enable this tool from the Menu Bar.</p>
+
 ###
 
 <h2 align="left">Features</h2>
