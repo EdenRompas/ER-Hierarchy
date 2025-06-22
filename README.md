@@ -15,13 +15,13 @@
 <ul align="left">
   <li><strong>Gradient Highlight for Each Object</strong><br>
     Every GameObject in the Hierarchy is given a soft gradient highlight, making it easier to distinguish between objects and improving overall readability.
-  </li>
+  </li><br>
   <li><strong>Connector Lines Between Parent and Child Objects</strong><br>
     Visual lines are drawn between parent and child GameObjects, clearly representing the hierarchy structure. This makes nested relationships more immediately visible and easier to follow.
-  </li>
+  </li><br>
   <li><strong>Component Icons Displayed Next to GameObject Names</strong><br>
     If a GameObject has certain components (e.g., Rigidbody, Collider, Light), an appropriate icon is displayed beside the object’s name. This feature helps developers quickly identify the components attached to each object without needing to inspect them manually.
-  </li>
+  </li><br>
   <li><strong>Header Object Styling Using '---' Text</strong><br>
     Users can turn any GameObject into a visual section header by including the text "---" in its name. This will apply a distinct styling to the object, visually separating it from other items and helping organize the hierarchy into clearly defined sections.
   </li>
