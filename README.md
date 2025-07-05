@@ -9,8 +9,8 @@
 <p align="center">
   <table>
     <tr>
-      <td align="center"><strong>Code Editor</strong></td>
-      <td align="center"><strong>Inspector Unity</strong></td>
+      <td align="center"><strong>Example</strong></td>
+      <td align="center"><strong>Activated</strong></td>
     </tr>
     <tr>
       <td align="center">
