@@ -4,42 +4,52 @@ using EREditor.Hierarchy;
 
 namespace EREditor.HierarchyWindow
 {
-
 #if UNITY_EDITOR
 
     [InitializeOnLoad]
-    public class CustomHierarchyWindow : EditorWindow
+    public static class CustomHierarchyToggle
     {
-        private static bool isActive = false;
+        private const string PREF_KEY = "CustomHierarchyWindow_isActive";
 
-        static CustomHierarchyWindow()
+        static CustomHierarchyToggle()
         {
-            isActive = PlayerPrefs.GetInt("CustomHierarchyWindow_isActive") == 1;
+            bool isActive = PlayerPrefs.GetInt(PREF_KEY, 0) == 1;
             CustomHierarchy.ToggleEventListeners(isActive);
         }
 
-        [MenuItem("Tools/ER Hierarchy")]
-        static void OpenWindow()
+        [MenuItem("Tools/ER Hierarchy/Enable")]
+        public static void EnableHierarchy()
         {
-            CustomHierarchyWindow window = GetWindow<CustomHierarchyWindow>("ER Hierarchy");
-
-            window.minSize = new Vector2(100, 200);
-            window.maxSize = new Vector2(200, 300);
+            SetState(true);
         }
 
-        private void OnGUI()
+        [MenuItem("Tools/ER Hierarchy/Enable", true)]
+        public static bool EnableHierarchyValidate()
         {
-            EditorGUILayout.Space();
-            bool newActiveState = EditorGUILayout.ToggleLeft("Enable", isActive);
+            Menu.SetChecked("Tools/ER Hierarchy/Enable", PlayerPrefs.GetInt(PREF_KEY, 0) == 1);
+            return true;
+        }
 
-            if (newActiveState != isActive)
-            {
-                isActive = newActiveState;
-                CustomHierarchy.ToggleEventListeners(isActive);
+        [MenuItem("Tools/ER Hierarchy/Disable")]
+        public static void DisableHierarchy()
+        {
+            SetState(false);
+        }
 
-                PlayerPrefs.SetInt("CustomHierarchyWindow_isActive", isActive ? 1 : 0);
-                PlayerPrefs.Save();
-            }
+        [MenuItem("Tools/ER Hierarchy/Disable", true)]
+        public static bool DisableHierarchyValidate()
+        {
+            Menu.SetChecked("Tools/ER Hierarchy/Disable", PlayerPrefs.GetInt(PREF_KEY, 0) == 0);
+            return true;
+        }
+
+        private static void SetState(bool isActive)
+        {
+            CustomHierarchy.ToggleEventListeners(isActive);
+            PlayerPrefs.SetInt(PREF_KEY, isActive ? 1 : 0);
+            PlayerPrefs.Save();
+
+            Debug.Log($"[ER Hierarchy] is now {(isActive ? "Enabled" : "Disabled")}");
         }
     }
 
