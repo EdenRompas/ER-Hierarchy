@@ -6,6 +6,23 @@
 
 <p align="left">Don’t forget to enable this tool from the Menu Bar.</p>
 
+<p align="center">
+  <table>
+    <tr>
+      <td align="center"><strong>Code Editor</strong></td>
+      <td align="center"><strong>Inspector Unity</strong></td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="Assets/Images/documentation-1.png" alt="Preview 1" width="300"/>
+      </td>
+      <td align="center">
+        <img src="Assets/Images/documentation-2.png" alt="Preview 2" width="300"/>
+      </td>
+    </tr>
+  </table>
+</p>
+
 ###
 
 <h2 align="left">Features</h2>
@@ -32,17 +49,5 @@
 <h2 align="left">Highlight</h2>
 
 ###
-
-<div align="left">
-  <img height="200" src="Assets/Images/documentation-1.png"/>
-</div>
-
-<div align="left">
-  <img height="100" src="Assets/Images/documentation-2.png"/>
-</div>
-
-<div align="left">
-  <img height="200" src="Assets/Images/documentation-3.png"/>
-</div>
 
 ###
