@@ -45,9 +45,3 @@
 </ul>
 
 ###
-
-<h2 align="left">Highlight</h2>
-
-###
-
-###
