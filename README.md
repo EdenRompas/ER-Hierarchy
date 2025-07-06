@@ -6,6 +6,8 @@
 
 <p align="left">Enable this tool via Menu Item -> Tools -> ER Hierarchy -> Enable.</p>
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 <p align="center">
   <table>
     <tr>
