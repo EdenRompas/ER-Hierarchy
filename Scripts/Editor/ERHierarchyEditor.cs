@@ -6,13 +6,13 @@ using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace EREditor.Hierarchy
+namespace ERHierarchy
 {
 
 #if UNITY_EDITOR
 
     [InitializeOnLoad]
-    public static class CustomHierarchy
+    public static class ERHierarchyEditor
     {
         private static Dictionary<int, Color> objectColors = new Dictionary<int, Color>();
         private static bool isEven = false;
@@ -26,17 +26,6 @@ namespace EREditor.Hierarchy
             middleChild,
             lastChild,
             sibling
-        }
-
-        static CustomHierarchy()
-        {
-            /*EditorApplication.hierarchyWindowItemOnGUI += Separator;
-            EditorApplication.hierarchyWindowItemOnGUI += AlternativeLine;
-            EditorApplication.hierarchyChanged += UpdateAlternativeLine;
-            EditorApplication.hierarchyWindowItemOnGUI += Icon;
-            EditorApplication.hierarchyWindowItemOnGUI += Toggle;
-            EditorApplication.hierarchyWindowItemOnGUI += DrawHierarchyTree;
-            */
         }
 
         public static void ToggleEventListeners(bool activate)

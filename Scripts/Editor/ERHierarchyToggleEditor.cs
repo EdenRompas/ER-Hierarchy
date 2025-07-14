@@ -1,20 +1,20 @@
 using UnityEngine;
 using UnityEditor;
-using EREditor.Hierarchy;
+using ERHierarchy;
 
-namespace EREditor.HierarchyWindow
+namespace ERHierarchyWindow
 {
 #if UNITY_EDITOR
 
     [InitializeOnLoad]
-    public static class CustomHierarchyToggle
+    public static class ERHierarchyToggleEditor
     {
         private const string PREF_KEY = "CustomHierarchyWindow_isActive";
 
-        static CustomHierarchyToggle()
+        static ERHierarchyToggleEditor()
         {
             bool isActive = PlayerPrefs.GetInt(PREF_KEY, 0) == 1;
-            CustomHierarchy.ToggleEventListeners(isActive);
+            ERHierarchyEditor.ToggleEventListeners(isActive);
         }
 
         [MenuItem("Tools/ER Hierarchy/Enable")]
@@ -45,7 +45,7 @@ namespace EREditor.HierarchyWindow
 
         private static void SetState(bool isActive)
         {
-            CustomHierarchy.ToggleEventListeners(isActive);
+            ERHierarchyEditor.ToggleEventListeners(isActive);
             PlayerPrefs.SetInt(PREF_KEY, isActive ? 1 : 0);
             PlayerPrefs.Save();
 
