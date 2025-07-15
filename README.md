@@ -8,6 +8,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![openupm](https://img.shields.io/npm/v/com.edenrompas.er-inspector?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.edenrompas.er-hierarchy/)
+[![CodeFactor](https://www.codefactor.io/repository/github/edenrompas/er-inspector/badge)](https://www.codefactor.io/repository/github/edenrompas/er-hierarchy)
 
 <p align="center">
   <table>
