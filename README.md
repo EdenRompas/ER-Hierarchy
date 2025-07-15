@@ -7,6 +7,7 @@
 <p align="left">Enable this tool via Menu Item -> Tools -> ER Hierarchy -> Enable.</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![openupm](https://img.shields.io/npm/v/com.edenrompas.er-inspector?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.edenrompas.er-hierarchy/)
 
 <p align="center">
   <table>
