@@ -1,70 +1,60 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace ERHierarchy
 {
-
 #if UNITY_EDITOR
 
     [InitializeOnLoad]
     public static class ERHierarchyEditor
     {
-        private static Dictionary<int, Color> objectColors = new Dictionary<int, Color>();
-        private static bool isEven = false;
+        private static readonly Dictionary<EntityId, Color> objectColors = new Dictionary<EntityId, Color>();
+        private static bool isEven;
 
-        private static float edgeWidth = 1.0f;
-        private static Color edgeColor = new Color(0.46f, 0.46f, 0.46f);
-        private static Color highlightedEdgeColor = new Color(0.49f, 0.678f, 0.952f);
+        private const float EdgeWidth = 1.0f;
+        private static readonly Color EdgeColor = new Color(0.46f, 0.46f, 0.46f);
+        private static readonly Color HighlightedEdgeColor = new Color(0.49f, 0.678f, 0.952f);
 
         private enum EdgeType
         {
-            middleChild,
-            lastChild,
-            sibling
+            MiddleChild,
+            LastChild,
+            Sibling
         }
 
         public static void ToggleEventListeners(bool activate)
         {
             if (activate)
             {
-                EditorApplication.hierarchyWindowItemOnGUI += Separator;
-                EditorApplication.hierarchyWindowItemOnGUI += AlternativeLine;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI += AlternativeLine;
                 EditorApplication.hierarchyChanged += UpdateAlternativeLine;
-                EditorApplication.hierarchyWindowItemOnGUI += Icon;
-                EditorApplication.hierarchyWindowItemOnGUI += DrawHierarchyTree;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI += Icon;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI += DrawHierarchyTree;
             }
             else
             {
-                EditorApplication.hierarchyWindowItemOnGUI -= Separator;
-                EditorApplication.hierarchyWindowItemOnGUI -= AlternativeLine;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= AlternativeLine;
                 EditorApplication.hierarchyChanged -= UpdateAlternativeLine;
-                EditorApplication.hierarchyWindowItemOnGUI -= Icon;
-                EditorApplication.hierarchyWindowItemOnGUI -= DrawHierarchyTree;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= Icon;
+                EditorApplication.hierarchyWindowItemByEntityIdOnGUI -= DrawHierarchyTree;
             }
         }
 
         #region Alternative Line Hierarchy
 
-        private static void AlternativeLine(int instanceID, Rect selectionRect)
+        private static void AlternativeLine(EntityId entityId, Rect selectionRect)
         {
-            GameObject gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            if (EditorUtility.EntityIdToObject(entityId) is not GameObject) return;
 
-            if (gameObject != null)
+            if (!objectColors.TryGetValue(entityId, out Color color))
             {
-                if (!objectColors.ContainsKey(instanceID))
-                {
-                    objectColors[instanceID] = isEven ? new Color(0.3f, 0.3f, 0.3f, 0.1f) : Color.clear;
-                    isEven = !isEven;
-                }
-
-                Color alternatingColor = objectColors[instanceID];
-                EditorGUI.DrawRect(selectionRect, alternatingColor);
+                color = isEven ? new Color(0.3f, 0.3f, 0.3f, 0.1f) : Color.clear;
+                objectColors[entityId] = color;
+                isEven = !isEven;
             }
+
+            EditorGUI.DrawRect(selectionRect, color);
         }
 
         private static void UpdateAlternativeLine()
@@ -77,211 +67,85 @@ namespace ERHierarchy
 
         #region Icon Hierarchy
 
-        static void Icon(int instanceID, Rect selectionRect)
+        private static void Icon(EntityId entityId, Rect selectionRect)
         {
-            GameObject gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            var gameObject = EditorUtility.EntityIdToObject(entityId) as GameObject;
+            if (gameObject == null) return;
 
-            if (gameObject != null)
+            Texture2D icon = GetBestComponentIcon(gameObject);
+            if (icon != null)
+                GUI.DrawTexture(new Rect(selectionRect.xMax - 16, selectionRect.yMin, 16, 16), icon);
+        }
+
+        // Retrieves the most representative icon from all components attached to the GameObject.
+        // User-defined scripts (namespaces outside UnityEngine) are prioritized because they
+        // best represent the GameObject's primary purpose in the Hierarchy. If none are found,
+        // the icon of any built-in Unity component (such as Rigidbody, Collider, Light, UI, etc.)
+        // is automatically retrieved through AssetPreview without requiring each type to be
+        // registered manually.
+        private static Texture2D GetBestComponentIcon(GameObject gameObject)
+        {
+            Component[] components = gameObject.GetComponents<Component>();
+
+            foreach (Component component in components)
             {
-                Texture2D icon = null;
-
-                MonoBehaviour[] scripts = gameObject.GetComponents<MonoBehaviour>();
-                if (scripts.Length > 0)
+                if (component is MonoBehaviour script && IsUserScript(script) && !IsHierarchyMarker(script))
                 {
-                    foreach (MonoBehaviour script in scripts)
-                    {
-                        if (script != null && !IsScript(script))
-                        {
-                            icon = AssetPreview.GetMiniThumbnail(MonoScript.FromMonoBehaviour(script));
-                            if (icon != null)
-                                break;
-                        }
-                        else if (gameObject.GetComponent<Button>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(Button)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<Slider>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(Slider)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<GridLayoutGroup>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(GridLayoutGroup)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<HorizontalLayoutGroup>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(HorizontalLayoutGroup)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<VerticalLayoutGroup>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(VerticalLayoutGroup)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<Image>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(Image)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<TextMeshProUGUI>() != null)
-                        {
-                            icon = AssetPreview.GetMiniThumbnail(gameObject.GetComponent<TextMeshProUGUI>());
-                        }
-                        else if (gameObject.GetComponent<Text>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(Text)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<Canvas>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(Canvas)).image as Texture2D;
-                        }
-                        else if (gameObject.GetComponent<EventSystem>() != null)
-                        {
-                            icon = EditorGUIUtility.ObjectContent(null, typeof(EventSystem)).image as Texture2D;
-                        }
-                    }
-                }
-                else
-                {
-                    if (gameObject.GetComponent<Rigidbody>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(Rigidbody)).image as Texture2D;
-                    }
-                    if (gameObject.GetComponent<Rigidbody2D>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(Rigidbody2D)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<Light>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(Light)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<MeshFilter>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(MeshFilter)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<BoxCollider>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(BoxCollider)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<CapsuleCollider>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(CapsuleCollider)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<SphereCollider>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(SphereCollider)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<MeshCollider>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(MeshCollider)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<SpriteRenderer>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(SpriteRenderer)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<BoxCollider2D>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(BoxCollider2D)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<CapsuleCollider2D>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(CapsuleCollider2D)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<CircleCollider2D>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(CircleCollider2D)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<Camera>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(Camera)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<ParticleSystem>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(ParticleSystem)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponent<NavMeshAgent>() != null)
-                    {
-                        icon = EditorGUIUtility.ObjectContent(null, typeof(NavMeshAgent)).image as Texture2D;
-                    }
-                    else if (gameObject.GetComponents<Component>().Length == 1)
-                    {
-                        icon = null;
-                    }
-                }
-
-                if (icon != null)
-                {
-                    GUI.DrawTexture(new Rect(selectionRect.xMax - 16, selectionRect.yMin, 16, 16), icon);
+                    Texture2D icon = AssetPreview.GetMiniThumbnail(script);
+                    if (icon != null) return icon;
                 }
             }
-        }
 
-        static bool IsScript(MonoBehaviour script)
-        {
-            return script.GetType().Namespace != null && script.GetType().Namespace != "UnityEngine";
-        }
-
-        #endregion
-
-        #region Separator Hierarchy
-
-        static void Separator(int instanceID, Rect selectionRect)
-        {
-            var gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-
-            if (gameObject != null && gameObject.name.StartsWith("---", System.StringComparison.Ordinal))
+            foreach (Component component in components)
             {
-                /*Rect backgroundRect = new Rect(selectionRect)
-                {
-                    x = 0,
-                    width = Screen.width
-                };*/
+                if (component == null || component is Transform || component is MonoBehaviour) continue;
 
-                EditorGUI.DrawRect(selectionRect, new Color(0.3f, 0.3f, 0.3f, 1));
-
-                GUIStyle style = new GUIStyle(GUI.skin.label);
-                style.fontStyle = FontStyle.Bold;
-                style.alignment = TextAnchor.MiddleCenter;
-
-                EditorGUI.LabelField(selectionRect, gameObject.name.Replace("-", "").ToUpperInvariant(), style);
+                Texture2D icon = AssetPreview.GetMiniThumbnail(component);
+                if (icon != null) return icon;
             }
+
+            return null;
         }
+
+        private static bool IsUserScript(MonoBehaviour script)
+        {
+            string ns = script.GetType().Namespace;
+            return ns != null && ns != "UnityEngine";
+        }
+
+        // ERHeader/ERSeparator are purely organizational markers and already occupy
+        // an entire row by themselves, so their icons do not need to be displayed
+        // on the right side of the Hierarchy.
+        private static bool IsHierarchyMarker(MonoBehaviour script) => script is ERHeader || script is ERSeparator;
 
         #endregion
 
         #region Tree Hierarchy
 
-        private static Color GetColor(bool highlighted)
-        {
-            if (highlighted)
-            {
-                return highlightedEdgeColor;
-            }
-            else
-            {
-                return edgeColor;
-            }
-        }
+        private static Color GetColor(bool highlighted) => highlighted ? HighlightedEdgeColor : EdgeColor;
 
-        private static float CalculateRectXValue(Rect rect, int graphDistance)
-        {
-            return rect.x - 21.5f - graphDistance * (rect.height - 2);
-        }
+        private static bool IsAncestorSelected(Transform t) =>
+            Selection.activeTransform != null && t.IsChildOf(Selection.activeTransform);
+
+        private static float CalculateRectXValue(Rect rect, int graphDistance) =>
+            rect.x - 21.5f - graphDistance * (rect.height - 2);
 
         private static void DrawFullVerticalEdgeSegment(Rect rect, int graphDistance, bool highlighted)
         {
-            EditorGUI.DrawRect(new Rect(CalculateRectXValue(rect, graphDistance), rect.y, edgeWidth, rect.height),
+            EditorGUI.DrawRect(new Rect(CalculateRectXValue(rect, graphDistance), rect.y, EdgeWidth, rect.height),
                 GetColor(highlighted));
         }
 
         private static void DrawHalfVerticalEdgeSegment(Rect rect, int graphDistance, bool highlighted)
         {
-            EditorGUI.DrawRect(new Rect(CalculateRectXValue(rect, graphDistance), rect.y, edgeWidth, rect.height / 2),
+            EditorGUI.DrawRect(new Rect(CalculateRectXValue(rect, graphDistance), rect.y, EdgeWidth, rect.height / 2),
                 GetColor(highlighted));
         }
 
         private static void DrawHorizontalEdgeSegment(Rect rect, int graphDistance, bool highlighted)
         {
             EditorGUI.DrawRect(
-                new Rect(CalculateRectXValue(rect, graphDistance), rect.y + rect.height / 2, rect.height / 2,
-                    edgeWidth),
+                new Rect(CalculateRectXValue(rect, graphDistance), rect.y + rect.height / 2, rect.height / 2, EdgeWidth),
                 GetColor(highlighted));
         }
 
@@ -289,77 +153,42 @@ namespace ERHierarchy
         {
             switch (edgeType)
             {
-                case EdgeType.sibling:
+                case EdgeType.Sibling:
                     DrawFullVerticalEdgeSegment(rect, graphDistance, highlighted);
                     break;
-                case EdgeType.lastChild:
+                case EdgeType.LastChild:
                     DrawHalfVerticalEdgeSegment(rect, graphDistance, highlighted);
                     DrawHorizontalEdgeSegment(rect, graphDistance, highlighted);
                     break;
-                case EdgeType.middleChild:
+                case EdgeType.MiddleChild:
                     DrawFullVerticalEdgeSegment(rect, graphDistance, highlighted);
                     DrawHorizontalEdgeSegment(rect, graphDistance, highlighted);
                     break;
             }
         }
 
-        private static void DrawHierarchyTree(int instanceID, Rect selectionRect)
+        private static void DrawHierarchyTree(EntityId entityId, Rect selectionRect)
         {
-            var go = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            var go = EditorUtility.EntityIdToObject(entityId) as GameObject;
+            if (go == null || go.transform.parent == null) return;
 
-            if (go != null)
+            Transform parent = go.transform.parent;
+            bool isLastChild = go.transform.GetSiblingIndex() == parent.childCount - 1;
+            DrawHierarchyEdge(isLastChild ? EdgeType.LastChild : EdgeType.MiddleChild,
+                IsAncestorSelected(parent), 0, selectionRect);
+
+            Transform reference = parent;
+            int distance = 1;
+
+            while (reference.parent != null)
             {
-                // Draw children (
-                if (go.transform.parent != null)
+                if (reference.GetSiblingIndex() < reference.parent.childCount - 1)
                 {
-                    if (go.transform.GetSiblingIndex() < go.transform.parent.childCount - 1)
-                    {
-                        if (Selection.activeTransform != null &&
-                            go.transform.parent.IsChildOf(Selection.activeTransform))
-                        {
-                            DrawHierarchyEdge(EdgeType.middleChild, true, 0, selectionRect);
-                        }
-                        else
-                        {
-                            DrawHierarchyEdge(EdgeType.middleChild, false, 0, selectionRect);
-                        }
-                    }
-                    else
-                    {
-                        if (Selection.activeTransform != null &&
-                            go.transform.parent.IsChildOf(Selection.activeTransform))
-                        {
-                            DrawHierarchyEdge(EdgeType.lastChild, true, 0, selectionRect);
-                        }
-                        else
-                        {
-                            DrawHierarchyEdge(EdgeType.lastChild, false, 0, selectionRect);
-                        }
-                    }
-
-                    var referenceTransform = go.transform.parent;
-                    var currentDistance = 1;
-
-                    // Draw ancestors with open sibling relations
-                    while (referenceTransform.parent != null)
-                    {
-                        if (referenceTransform.GetSiblingIndex() < referenceTransform.parent.childCount - 1)
-                        {
-                            if (Selection.activeTransform != null &&
-                                referenceTransform.parent.IsChildOf(Selection.activeTransform))
-                            {
-                                DrawHierarchyEdge(EdgeType.sibling, true, currentDistance, selectionRect);
-                            }
-                            else
-                            {
-                                DrawHierarchyEdge(EdgeType.sibling, false, currentDistance, selectionRect);
-                            }
-                        }
-
-                        referenceTransform = referenceTransform.parent;
-                        currentDistance++;
-                    }
+                    DrawHierarchyEdge(EdgeType.Sibling, IsAncestorSelected(reference.parent), distance, selectionRect);
                 }
+
+                reference = reference.parent;
+                distance++;
             }
         }
 
