@@ -5,9 +5,6 @@ using UnityEditor;
 
 namespace ERHierarchy
 {
-    // Tempelkan komponen ini pada GameObject supaya barisnya digambar sebagai Separator
-    // (garis horizontal tipis, tanpa teks) di Hierarchy window. Tidak ada logic runtime,
-    // murni penanda untuk keperluan organisasi di Editor.
     [DisallowMultipleComponent]
     public class ERSeparator : MonoBehaviour
     {
@@ -33,10 +30,8 @@ namespace ERHierarchy
             var gameObject = EditorUtility.EntityIdToObject(entityId) as GameObject;
             if (gameObject == null || gameObject.GetComponent<ERSeparator>() == null) return;
 
-            // Tutupi nama asli GameObject supaya baris terlihat bersih
             EditorGUI.DrawRect(selectionRect, EditorGUIUtility.isProSkin ? BackgroundColorDark : BackgroundColorLight);
 
-            // Garis tipis di tengah baris, memanjang penuh secara horizontal
             var lineRect = new Rect(
                 selectionRect.x,
                 selectionRect.y + selectionRect.height / 2f - LineThickness / 2f,
