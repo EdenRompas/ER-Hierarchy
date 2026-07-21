@@ -76,10 +76,12 @@ namespace ERHierarchy
 
         #region Icon Hierarchy
 
-        private const float IconSize = 16f;
+        private const float IconSize = 14f;
         private const float IconGap = 1f;
-        private const float Gap = 4f;
-        private const float NameAndIconGap = 12f;
+        private const float IconGapLeft = 4f;
+        private const float IconGapWithName = 12f;
+        private const float IconOpacity = 0.6f;
+        private const float IconTopGap = 1f;
 
         private static readonly List<Component> componentBuffer = new List<Component>(8);
         private static readonly List<Texture2D> iconBuffer = new List<Texture2D>(8);
@@ -96,19 +98,24 @@ namespace ERHierarchy
             nameContent.text = gameObject.name;
             float nameWidth = EditorStyles.label.CalcSize(nameContent).x;
 
-            float rightEdge = selectionRect.xMax - ToggleWidth - Gap;
-            float leftBound = selectionRect.x + nameWidth + Gap + NameAndIconGap;
+            float rightEdge = selectionRect.xMax - ToggleWidth - IconGapLeft;
+            float leftBound = selectionRect.x + nameWidth + IconGapLeft + IconGapWithName;
             float availableWidth = rightEdge - leftBound;
 
             int maxIcons = Mathf.Max(0, Mathf.FloorToInt((availableWidth + IconGap) / (IconSize + IconGap)));
             int count = Mathf.Min(iconBuffer.Count, maxIcons);
 
+            Color previousColor = GUI.color;
+            GUI.color = new Color(previousColor.r, previousColor.g, previousColor.b, IconOpacity);
+
             float x = rightEdge - count * (IconSize + IconGap);
             for (int i = 0; i < count; i++)
             {
-                GUI.DrawTexture(new Rect(x, selectionRect.yMin, IconSize, IconSize), iconBuffer[i]);
+                GUI.DrawTexture(new Rect(x, selectionRect.yMin + IconTopGap, IconSize, IconSize), iconBuffer[i]);
                 x += IconSize + IconGap;
             }
+
+            GUI.color = previousColor;
         }
 
         private static void CollectComponentIcons(GameObject gameObject, List<Texture2D> result)
@@ -156,13 +163,25 @@ namespace ERHierarchy
         #region Active Toggle Hierarchy
 
         private const float ToggleWidth = 16f;
+        private const float ToggleOpacity = 0.8f;
+        private const float ToggleNameAndIconGap = 16f;
 
         private static void ActiveToggle(EntityId entityId, Rect selectionRect)
         {
             var gameObject = EditorUtility.EntityIdToObject(entityId) as GameObject;
             if (gameObject == null || HasHierarchyMarker(gameObject)) return;
 
-            var toggleRect = new Rect(selectionRect.xMax - ToggleWidth, selectionRect.yMin, ToggleWidth, 16);
+            nameContent.text = gameObject.name;
+            float nameWidth = EditorStyles.label.CalcSize(nameContent).x;
+            float leftBound = selectionRect.x + nameWidth + ToggleNameAndIconGap;
+            float toggleLeft = selectionRect.xMax - ToggleWidth;
+
+            if (toggleLeft < leftBound) return;
+
+            Color previousColor = GUI.color;
+            GUI.color = new Color(previousColor.r, previousColor.g, previousColor.b, ToggleOpacity);
+
+            var toggleRect = new Rect(toggleLeft, selectionRect.yMin, ToggleWidth, 16);
             bool isActive = EditorGUI.Toggle(toggleRect, gameObject.activeSelf);
 
             if (isActive != gameObject.activeSelf)
@@ -170,6 +189,8 @@ namespace ERHierarchy
                 Undo.RecordObject(gameObject, "Toggle Active State");
                 gameObject.SetActive(isActive);
             }
+
+            GUI.color = previousColor;
         }
 
         #endregion
