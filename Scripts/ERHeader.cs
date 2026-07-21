@@ -34,7 +34,7 @@ namespace ERHierarchy
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter
             };
-            EditorGUI.LabelField(selectionRect, gameObject.name.ToUpperInvariant(), style);
+            EditorGUI.LabelField(selectionRect, gameObject.name, style);
         }
 
         #region Context Menu
