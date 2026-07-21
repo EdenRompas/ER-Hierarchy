@@ -5,9 +5,6 @@ using UnityEditor;
 
 namespace ERHierarchy
 {
-    // Tempelkan komponen ini pada GameObject supaya barisnya digambar sebagai Header
-    // (baris solid + judul teks tebal) di Hierarchy window. Tidak ada logic runtime,
-    // murni penanda untuk keperluan organisasi di Editor.
     [DisallowMultipleComponent]
     public class ERHeader : MonoBehaviour
     {
