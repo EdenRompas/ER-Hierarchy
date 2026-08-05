@@ -13,12 +13,23 @@ namespace ERHierarchy
             Red,
             Green,
             Blue,
-            Yellow
+            Yellow,
+            Custom
         }
 
         [SerializeField] private HeaderColorPreset colorPreset = HeaderColorPreset.Gray;
+        [SerializeField] private Color _headerColor;
 
-        public Color TintColor => GetColorForPreset(colorPreset);
+        public Color TintColor
+        {
+            get
+            {
+                if (colorPreset == HeaderColorPreset.Custom)
+                    return _headerColor;
+
+                return GetColorForPreset(colorPreset);
+            }
+        }
 
         public void SetColorPreset(HeaderColorPreset preset) => colorPreset = preset;
 
